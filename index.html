@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Cari Karyawan</title>
+  <title>Pencarian Karyawan</title>
 
   <!-- Supabase JS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -11,6 +11,8 @@
     body {
       font-family: Arial, sans-serif;
       background: #f4f6f8;
+      margin: 0;
+      padding: 0;
     }
     .container {
       max-width: 500px;
@@ -20,10 +22,16 @@
       border-radius: 8px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
     input, button {
       padding: 10px;
       width: 100%;
       margin-bottom: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
     }
     button {
       background: #007bff;
@@ -36,37 +44,33 @@
     }
     .result {
       margin-top: 15px;
-      border-top: 1px solid #ddd;
-      padding-top: 10px;
     }
     .item {
-      padding: 8px;
+      padding: 10px;
       background: #fafafa;
       border-radius: 5px;
       margin-bottom: 8px;
+      border: 1px solid #ddd;
     }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <h2>Cari Karyawan</h2>
+  <h2>Pencarian Karyawan</h2>
 
-  <input type="text" id="keyword" placeholder="Cari Nama / NIK / No Kamar">
+  <input type="text" id="keyword" placeholder="Cari NIK / Nama / No Kamar">
   <button onclick="cariData()">Cari</button>
 
   <div id="hasil" class="result"></div>
 </div>
 
 <script>
-  // 🔐 GANTI dengan punyamu
+  // Supabase credentials
   const SUPABASE_URL = "https://afyqquoxqbnuaijhyszx.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmeXFxdW94cWJudWFpamh5c3p4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxNTI5NzgsImV4cCI6MjA4MzcyODk3OH0.Sa-dNSosI7Ol_w-_HZA3B6welLSLZHwKX9hMt9fZCQM";
 
-  const supabase = supabaseJs.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
-  );
+  const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   async function cariData() {
     const keyword = document.getElementById("keyword").value.trim();
@@ -81,20 +85,18 @@
 
     const { data, error } = await supabase
       .from("karyawan")
-      .select("nik, nama, department, jabatan, block, no_kamar")
+      .select("nik, nama, block, no_kamar")
       .or(
-        `nama.ilike.%${keyword}%,
-         nik.ilike.%${keyword}%,
-         no_kamar.ilike.%${keyword}%`
+        `nik.ilike.%${keyword}%,nama.ilike.%${keyword}%,no_kamar.ilike.%${keyword}%`
       );
 
     if (error) {
-      hasilDiv.innerHTML = "Terjadi kesalahan";
+      hasilDiv.innerHTML = "Terjadi kesalahan saat mengambil data";
       console.error(error);
       return;
     }
 
-    if (data.length === 0) {
+    if (!data || data.length === 0) {
       hasilDiv.innerHTML = "Data tidak ditemukan";
       return;
     }
@@ -103,11 +105,9 @@
     data.forEach(row => {
       hasilDiv.innerHTML += `
         <div class="item">
-          <strong>${row.nama ?? "-"}</strong><br>
-          NIK: ${row.nik ?? "-"}<br>
-          Dept: ${row.department ?? "-"}<br>
-          Jabatan: ${row.jabatan ?? "-"}<br>
-          Kamar: ${row.block ?? "-"}-${row.no_kamar ?? "-"}
+          <strong>Nama:</strong> ${row.nama ?? "-"}<br>
+          <strong>NIK:</strong> ${row.nik ?? "-"}<br>
+          <strong>Kamar:</strong> ${row.block ?? "-"} - ${row.no_kamar ?? "-"}
         </div>
       `;
     });
