@@ -2,68 +2,52 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Pencarian Karyawan</title>
-
+  <title>Test Supabase</title>
   <!-- Supabase JS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f4f6f8;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      max-width: 500px;
-      margin: 80px auto;
-      background: #fff;
       padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      background: #f4f4f4;
     }
     h2 {
       text-align: center;
-      margin-bottom: 20px;
     }
-    input, button {
-      padding: 10px;
+    table {
       width: 100%;
-      margin-bottom: 10px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: #fff;
     }
-    button {
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
       background: #007bff;
       color: #fff;
-      border: none;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #0056b3;
-    }
-    .result {
-      margin-top: 15px;
-    }
-    .item {
-      padding: 10px;
-      background: #fafafa;
-      border-radius: 5px;
-      margin-bottom: 8px;
-      border: 1px solid #ddd;
     }
   </style>
 </head>
 <body>
 
-<div class="container">
-  <h2>Pencarian Karyawan</h2>
+<h2>Test Koneksi Supabase</h2>
 
-  <input type="text" id="keyword" placeholder="Cari NIK / Nama / No Kamar">
-  <button onclick="cariData()">Cari</button>
-
-  <div id="hasil" class="result"></div>
-</div>
+<table id="tabel-data">
+  <thead>
+    <tr>
+      <th>NIK</th>
+      <th>Nama</th>
+      <th>Department</th>
+      <th>Jabatan</th>
+      <th>Block</th>
+      <th>No Kamar</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
 
 <script>
   // Supabase credentials
@@ -72,46 +56,39 @@
 
   const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  async function cariData() {
-    const keyword = document.getElementById("keyword").value.trim();
-    const hasilDiv = document.getElementById("hasil");
+  async function tampilkanData() {
+    const { data, error } = await supabase.from("karyawan").select("*");
 
-    hasilDiv.innerHTML = "Mencari...";
-
-    if (!keyword) {
-      hasilDiv.innerHTML = "Masukkan kata pencarian";
-      return;
-    }
-
-    const { data, error } = await supabase
-      .from("karyawan")
-      .select("nik, nama, block, no_kamar")
-      .or(
-        `nik.ilike.%${keyword}%,nama.ilike.%${keyword}%,no_kamar.ilike.%${keyword}%`
-      );
+    const tbody = document.querySelector("#tabel-data tbody");
+    tbody.innerHTML = "";
 
     if (error) {
-      hasilDiv.innerHTML = "Terjadi kesalahan saat mengambil data";
+      tbody.innerHTML = `<tr><td colspan="6">Terjadi kesalahan: ${error.message}</td></tr>`;
       console.error(error);
       return;
     }
 
     if (!data || data.length === 0) {
-      hasilDiv.innerHTML = "Data tidak ditemukan";
+      tbody.innerHTML = `<tr><td colspan="6">Data kosong</td></tr>`;
       return;
     }
 
-    hasilDiv.innerHTML = "";
     data.forEach(row => {
-      hasilDiv.innerHTML += `
-        <div class="item">
-          <strong>Nama:</strong> ${row.nama ?? "-"}<br>
-          <strong>NIK:</strong> ${row.nik ?? "-"}<br>
-          <strong>Kamar:</strong> ${row.block ?? "-"} - ${row.no_kamar ?? "-"}
-        </div>
+      tbody.innerHTML += `
+        <tr>
+          <td>${row.nik ?? "-"}</td>
+          <td>${row.nama ?? "-"}</td>
+          <td>${row.department ?? "-"}</td>
+          <td>${row.jabatan ?? "-"}</td>
+          <td>${row.block ?? "-"}</td>
+          <td>${row.no_kamar ?? "-"}</td>
+        </tr>
       `;
     });
   }
+
+  // Panggil fungsi saat halaman load
+  window.onload = tampilkanData;
 </script>
 
 </body>
