@@ -65,7 +65,7 @@
 
   async function tampilkanData() {
     const { data, error } = await supabaseClient
-      .from("karyawan")
+      .from("Karyawan")
       .select("*");
 
     const tbody = document.querySelector("#tabel-data tbody");
