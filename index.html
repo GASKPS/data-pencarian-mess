@@ -1,106 +1,74 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mess Karyawan</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mess Karyawan</title>
 
-  <!-- Bootstrap -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Bootstrap -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <!-- Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- Screenshot -->
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<!-- html2canvas -->
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
-  <style>
-    :root {
-      --bg:#f1f3f6;
-      --card:#ffffff;
-      --text:#111827;
-      --primary:#1e3a8a;
-      --border:#ddd;
-    }
-    body.dark {
-      --bg:#0f172a;
-      --card:#020617;
-      --text:#e5e7eb;
-      --primary:#60a5fa;
-      --border:#334155;
-    }
+<style>
+:root {
+  --bg:#f1f3f6; --card:#ffffff; --text:#111827; --primary:#1e3a8a; --border:#ddd;
+}
+body.dark { --bg:#0f172a; --card:#020617; --text:#e5e7eb; --primary:#60a5fa; --border:#334155; }
 
-    body {
-      background:var(--bg);
-      color:var(--text);
-      min-height:100vh;
-      padding:40px 15px;
-      display:flex;
-      justify-content:center;
-      align-items:flex-start;
-      font-family:"Segoe UI",sans-serif;
-    }
+body {
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  padding:40px 15px;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  font-family:"Segoe UI",sans-serif;
+}
 
-    .card {
-      max-width:950px;
-      width:100%;
-      background:var(--card);
-      border-radius:16px;
-      padding:25px;
-      box-shadow:0 10px 30px rgba(0,0,0,.15);
-    }
+.card {
+  max-width:950px;
+  width:100%;
+  background:var(--card);
+  border-radius:16px;
+  padding:25px;
+  box-shadow:0 10px 30px rgba(0,0,0,.15);
+  position:relative;
+}
 
-    h2 { text-align:center; color:var(--primary); margin-bottom:10px; }
+h2 { text-align:center; color:var(--primary); margin-bottom:10px; }
+.dark-toggle { text-align:right; margin-bottom:10px; }
+.form-control,.btn { height:45px; border-radius:10px; }
 
-    .dark-toggle { text-align:right; margin-bottom:10px; }
+.table-container {
+  max-height:380px;
+  overflow:auto;
+  border-radius:10px;
+  background:var(--card);
+  box-shadow:0 4px 12px rgba(0,0,0,.1);
+}
+table { width:100%; border-collapse:collapse; }
+th { position:sticky; top:0; background:var(--primary); color:#fff; }
+th,td { border:1px solid var(--border); padding:8px; font-size:14px; }
 
-    .form-control,.btn { height:45px; border-radius:10px; }
-
-    .table-container {
-      max-height:380px;
-      overflow:auto;
-      border-radius:10px;
-      background:var(--card);
-      box-shadow:0 4px 12px rgba(0,0,0,.1);
-    }
-
-    table { width:100%; border-collapse:collapse; }
-    th {
-      position:sticky; top:0;
-      background:var(--primary);
-      color:#fff;
-    }
-    th,td {
-      border:1px solid var(--border);
-      padding:8px;
-      font-size:14px;
-    }
-
-    /* ===== SCREENSHOT ONLY ===== */
-    #screenshot-header {
-      display:none;
-      text-align:center;
-      margin-bottom:10px;
-    }
-    #screenshot-header img {
-      height:50px;
-      margin-bottom:6px;
-    }
-    .watermark {
-      position:absolute;
-      bottom:20px;
-      right:20px;
-      font-size:24px;
-      opacity:0.08;
-      transform:rotate(-20deg);
-      pointer-events:none;
-      font-weight:700;
-    }
-  </style>
+/* Screenshot only */
+#screenshot-header { display:none; text-align:center; margin-bottom:10px; }
+#screenshot-header img { height:50px; margin-bottom:6px; }
+.watermark {
+  position:absolute; bottom:20px; right:20px;
+  font-size:24px; opacity:0.08; transform:rotate(-20deg);
+  pointer-events:none; font-weight:700; display:none;
+}
+</style>
 </head>
 <body>
 
-<div class="card position-relative" id="cardRoot">
+<div class="card" id="cardRoot">
 
   <div class="dark-toggle">
     <button class="btn btn-outline-primary btn-sm" onclick="toggleDark()">🌙 / ☀️</button>
@@ -108,16 +76,16 @@
 
   <h2>Mess Karyawan</h2>
 
-  <!-- HEADER SCREENSHOT -->
+  <!-- Screenshot header -->
   <div id="screenshot-header">
     <img src="logo.png" alt="Logo">
     <h5 style="margin:0;font-weight:600">Data Mess Karyawan</h5>
     <small id="screenshot-time"></small>
   </div>
 
-  <!-- WATERMARK -->
   <div class="watermark" id="watermark">NAMA PERUSAHAAN</div>
 
+  <!-- Tabs -->
   <ul class="nav nav-tabs justify-content-center mb-3">
     <li class="nav-item">
       <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab1">NIK / Nama</button>
@@ -135,148 +103,3 @@
         <div class="col-md-9">
           <input id="cariNik" class="form-control" placeholder="Cari NIK atau Nama">
         </div>
-        <div class="col-md-3 d-grid">
-          <button class="btn btn-primary" onclick="cariNikNama()">Cari</button>
-        </div>
-      </div>
-
-      <div class="d-flex justify-content-end mb-2">
-        <button class="btn btn-outline-primary btn-sm" onclick="screenshotTabel()">📸 Screenshot</button>
-      </div>
-
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>NIK</th><th>Nama</th><th>Dept</th><th>Jabatan</th><th>Block</th><th>No Kamar</th>
-            </tr>
-          </thead>
-          <tbody id="hasilNik">
-            <tr><td colspan="6" class="text-center text-muted">Cari data terlebih dahulu</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- TAB 2 -->
-    <div class="tab-pane fade" id="tab2">
-      <div class="row g-2 mb-3">
-        <div class="col-md-4"><input id="cariBlock" class="form-control" placeholder="Block"></div>
-        <div class="col-md-4"><input id="cariKamar" class="form-control" placeholder="No Kamar"></div>
-        <div class="col-md-4 d-grid">
-          <button class="btn btn-primary" onclick="cariBlockKamar()">Cari</button>
-        </div>
-      </div>
-
-      <div class="d-flex justify-content-end mb-2">
-        <button class="btn btn-outline-primary btn-sm" onclick="screenshotTabel()">📸 Screenshot</button>
-      </div>
-
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>NIK</th><th>Nama</th><th>Dept</th><th>Jabatan</th><th>Block</th><th>No Kamar</th>
-            </tr>
-          </thead>
-          <tbody id="hasilBlock">
-            <tr><td colspan="6" class="text-center text-muted">Cari data terlebih dahulu</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<script>
-/* DARK MODE */
-if (localStorage.getItem("dark")==="on") document.body.classList.add("dark");
-function toggleDark(){
-  document.body.classList.toggle("dark");
-  localStorage.setItem("dark",document.body.classList.contains("dark")?"on":"off");
-}
-
-/* SUPABASE */
-const supabaseClient = supabase.createClient(
-  "https://afyqquoxqbnuaijhyszx.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmeXFxdW94cWJudWFpamh5c3p4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxNTI5NzgsImV4cCI6MjA4MzcyODk3OH0.Sa-dNSosI7Ol_w-_HZA3B6welLSLZHwKX9hMt9fZCQM"
-);
-
-function render(tbody,data){
-  if(!data||!data.length){
-    tbody.innerHTML=`<tr><td colspan="6" class="text-center text-muted">Data tidak ditemukan</td></tr>`;
-    return;
-  }
-  tbody.innerHTML=data.map(r=>`
-    <tr>
-      <td>${r.nik??"-"}</td>
-      <td>${r.nama??"-"}</td>
-      <td>${r.department??"-"}</td>
-      <td>${r.jabatan??"-"}</td>
-      <td>${r.block??"-"}</td>
-      <td>${r.no_kamar??"-"}</td>
-    </tr>`).join("");
-}
-
-async function cariNikNama(){
-  if(!cariNik.value) return;
-  const {data}=await supabaseClient
-    .from("Karyawan")
-    .select("*")
-    .or(`nik.ilike.%${cariNik.value}%,nama.ilike.%${cariNik.value}%`)
-    .limit(10);
-  render(hasilNik,data);
-}
-
-async function cariBlockKamar(){
-  let q=supabaseClient.from("Karyawan").select("*").limit(10);
-  if(cariBlock.value) q=q.eq("block",cariBlock.value);
-  if(cariKamar.value) q=q.eq("no_kamar",cariKamar.value);
-  const {data}=await q;
-  render(hasilBlock,data);
-}
-
-/* SCREENSHOT */
-function screenshotTabel(){
-  const container=document.querySelector(".tab-pane.active .table-container");
-  const header=document.getElementById("screenshot-header");
-  const watermark=document.getElementById("watermark");
-  const timeEl=document.getElementById("screenshot-time");
-
-  const now=new Date();
-  const p=n=>n.toString().padStart(2,"0");
-  const date=`${now.getFullYear()}-${p(now.getMonth()+1)}-${p(now.getDate())}`;
-  const time=`${p(now.getHours())}-${p(now.getMinutes())}-${p(now.getSeconds())}`;
-  timeEl.innerText=`Tanggal: ${date} | Jam: ${time.replaceAll("-",":")}`;
-
-  const oldMax=container.style.maxHeight;
-  const oldOver=container.style.overflow;
-
-  container.style.maxHeight="none";
-  container.style.overflow="visible";
-  header.style.display="block";
-  watermark.style.display="block";
-
-  setTimeout(()=>{
-    html2canvas(cardRoot,{
-      scale:window.devicePixelRatio*2,
-      backgroundColor:"#fff"
-    }).then(c=>{
-      const a=document.createElement("a");
-      a.download=`screenshot_${date}_${time}.png`;
-      a.href=c.toDataURL("image/png");
-      a.click();
-
-      header.style.display="none";
-      watermark.style.display="none";
-      container.style.maxHeight=oldMax;
-      container.style.overflow=oldOver;
-    });
-  },300);
-}
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
