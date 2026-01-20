@@ -99,7 +99,7 @@ th,td { border:1px solid var(--border); padding:8px; font-size:14px; }
 
     <!-- TAB 1 -->
     <div class="tab-pane fade show active" id="tab1">
-      <div class="row g-2 mb-3">
+      <div class="row g-2 mb-3 flex-wrap">
         <div class="col-md-9">
           <input id="cariNik" class="form-control" placeholder="Cari NIK atau Nama">
         </div>
@@ -112,7 +112,7 @@ th,td { border:1px solid var(--border); padding:8px; font-size:14px; }
         <button class="btn btn-outline-primary btn-sm" onclick="screenshotTabel()">📸 Screenshot</button>
       </div>
 
-      <div id="screenshot-area">
+      <div class="screenshot-area-tab1">
         <div class="table-container">
           <table>
             <thead>
@@ -130,7 +130,7 @@ th,td { border:1px solid var(--border); padding:8px; font-size:14px; }
 
     <!-- TAB 2 -->
     <div class="tab-pane fade" id="tab2">
-      <div class="row g-2 mb-3">
+      <div class="row g-2 mb-3 flex-wrap">
         <div class="col-md-4"><input id="cariBlock" class="form-control" placeholder="Block"></div>
         <div class="col-md-4"><input id="cariKamar" class="form-control" placeholder="No Kamar"></div>
         <div class="col-md-4 d-grid">
@@ -142,7 +142,7 @@ th,td { border:1px solid var(--border); padding:8px; font-size:14px; }
         <button class="btn btn-outline-primary btn-sm" onclick="screenshotTabel()">📸 Screenshot</button>
       </div>
 
-      <div id="screenshot-area">
+      <div class="screenshot-area-tab2">
         <div class="table-container">
           <table>
             <thead>
@@ -210,10 +210,9 @@ async function cariBlockKamar(){
   render(hasilBlock,data);
 }
 
-/* SCREENSHOT HANYA TABEL */
+/* SCREENSHOT ONLY TABEL */
 function screenshotTabel(){
   const activeTab = document.querySelector(".tab-pane.active");
-  const screenshotArea = activeTab.querySelector("#screenshot-area");
   const tableContainer = activeTab.querySelector(".table-container");
   const header = document.getElementById("screenshot-header");
   const watermark = document.getElementById("watermark");
@@ -226,43 +225,28 @@ function screenshotTabel(){
   const time = `${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
   timeEl.innerText=`Tanggal: ${date} | Jam: ${time.replaceAll("- ",":")}`;
 
-  const oldMax = tableContainer.style.maxHeight;
-  const oldOver = tableContainer.style.overflow;
-
-  // buka scroll
-  tableContainer.style.maxHeight = "none";
-  tableContainer.style.overflow = "visible";
   header.style.display="block";
   watermark.style.display="block";
 
-  const wrapper = document.createElement("div");
-  wrapper.style.background="#fff";
-  wrapper.style.padding="16px";
-  wrapper.style.width="1080px";
-  wrapper.style.margin="0 auto";
+  // clone untuk screenshot
+  const cloneWrapper = document.createElement("div");
+  cloneWrapper.style.background="#fff";
+  cloneWrapper.style.padding="16px";
+  cloneWrapper.style.width="1080px";
+  cloneWrapper.style.margin="0 auto";
+  cloneWrapper.appendChild(header.cloneNode(true));
+  cloneWrapper.appendChild(tableContainer.cloneNode(true));
 
-  screenshotArea.before(wrapper);
-  wrapper.appendChild(header);
-  wrapper.appendChild(screenshotArea);
+  html2canvas(cloneWrapper,{scale:1.2, backgroundColor:"#fff", useCORS:true})
+  .then(canvas=>{
+    const a=document.createElement("a");
+    a.download=`screenshot_${date}_${time}.png`;
+    a.href=canvas.toDataURL("image/png");
+    a.click();
 
-  setTimeout(()=>{
-    html2canvas(wrapper,{scale:1.2, backgroundColor:"#fff", useCORS:true})
-    .then(canvas=>{
-      const a=document.createElement("a");
-      a.download=`screenshot_${date}_${time}.png`;
-      a.href=canvas.toDataURL("image/png");
-      a.click();
-
-      // kembalikan
-      activeTab.prepend(screenshotArea);
-      document.querySelector(".card").prepend(header);
-      header.style.display="none";
-      watermark.style.display="none";
-      tableContainer.style.maxHeight=oldMax;
-      tableContainer.style.overflow=oldOver;
-      wrapper.remove();
-    });
-  },300);
+    header.style.display="none";
+    watermark.style.display="none";
+  });
 }
 </script>
 
