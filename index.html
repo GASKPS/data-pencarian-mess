@@ -1,153 +1,137 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mess Karyawan - Modern SPA</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mess Karyawan</title>
 
-  <!-- Bootstrap 5 CSS -->
+  <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <!-- Supabase JS v2 -->
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-      background-color: #f1f3f6;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+  <!-- Screenshot -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
+  <style>
     body {
+      background: #f1f3f6;
+      min-height: 100vh;
       display: flex;
       justify-content: center;
-      align-items: flex-start; /* sedikit ke atas */
-      padding: 40px 20px 20px 20px;
+      align-items: flex-start;
+      padding: 40px 15px;
+      font-family: "Segoe UI", sans-serif;
     }
 
     .card {
-      border: none;
-      border-radius: 15px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-      padding: 30px;
-      max-width: 900px;
+      max-width: 950px;
       width: 100%;
-      background-color: #ffffff;
+      border-radius: 16px;
+      border: none;
+      box-shadow: 0 10px 30px rgba(0,0,0,.12);
+      padding: 25px;
     }
 
     h2 {
-      color: #1e3a8a;
-      margin-bottom: 25px;
       text-align: center;
+      color: #1e3a8a;
+      margin-bottom: 20px;
       font-weight: 600;
-    }
-
-    .nav-tabs .nav-link.active {
-      background-color: #1e3a8a;
-      color: white !important;
-      border-radius: 10px 10px 0 0;
-      font-weight: 500;
     }
 
     .nav-tabs .nav-link {
       border: none;
-      color: #1e3a8a;
       font-weight: 500;
+      color: #1e3a8a;
     }
 
-    .form-control {
-      border-radius: 10px;
+    .nav-tabs .nav-link.active {
+      background: #1e3a8a;
+      color: #fff;
+      border-radius: 10px 10px 0 0;
+    }
+
+    .form-control, .btn {
       height: 45px;
-      font-size: 14px;
-      box-shadow: none;
+      border-radius: 10px;
     }
 
     .btn-primary {
-      border-radius: 10px;
-      height: 45px;
-      font-weight: 500;
-      background-color: #1e3a8a;
+      background: #1e3a8a;
       border: none;
     }
 
-    .btn-primary:hover {
-      background-color: #162b6d;
-    }
-
-    /* Scroll container tanpa padding agar sticky header tidak tembus */
     .table-container {
-      overflow-x: auto;
-      overflow-y: auto;
+      max-height: 380px;
+      overflow: auto;
+      background: #fff;
       border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      margin-top: 15px;
-      background-color: #fff;
-      max-height: 400px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.08);
     }
 
     table {
       width: 100%;
-      border-collapse: collapse; /* untuk sticky header rapi */
+      border-collapse: collapse;
     }
 
-    table th, table td {
-      padding: 8px;
-      border: 1px solid #ddd;
-      text-align: left;
-      font-size: 14px;
-    }
-
-    table th {
+    th {
       position: sticky;
       top: 0;
-      background-color: #1e3a8a;
+      background: #1e3a8a;
       color: white;
       z-index: 2;
     }
 
-    table tr:hover {
-      background-color: #e7f1ff;
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      font-size: 14px;
     }
 
-    @media (max-width: 576px) {
-      .row > .col-md, .row > .col-md-2, .row > .col-md-4 {
-        width: 100%;
-        margin-bottom: 10px;
-      }
+    tr:hover {
+      background: #e7f1ff;
     }
   </style>
 </head>
 <body>
 
 <div class="card">
-
   <h2>Mess Karyawan</h2>
 
-  <!-- Tabs -->
-  <ul class="nav nav-tabs mb-3 justify-content-center" id="searchTabs" role="tablist">
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="nik-tab" data-bs-toggle="tab" data-bs-target="#nik" type="button">NIK / Nama</button>
+  <ul class="nav nav-tabs justify-content-center mb-3">
+    <li class="nav-item">
+      <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#nikTab">
+        NIK / Nama
+      </button>
     </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="block-tab" data-bs-toggle="tab" data-bs-target="#block" type="button">Block / No Kamar</button>
+    <li class="nav-item">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#blokTab">
+        Block / No Kamar
+      </button>
     </li>
   </ul>
 
   <div class="tab-content">
 
-    <!-- Tab 1: NIK / Nama -->
-    <div class="tab-pane fade show active" id="nik" role="tabpanel">
-      <div class="row g-2 mb-3 justify-content-center">
-        <div class="col-md-8">
-          <input type="text" id="searchNikNama" class="form-control" placeholder="Cari NIK / Nama">
+    <!-- TAB NIK / NAMA -->
+    <div class="tab-pane fade show active" id="nikTab">
+      <div class="row g-2 mb-3">
+        <div class="col-md-9">
+          <input id="cariNik" class="form-control" placeholder="Cari NIK atau Nama">
         </div>
-        <div class="col-md-2 d-grid">
+        <div class="col-md-3 d-grid">
           <button class="btn btn-primary" onclick="cariNikNama()">Cari</button>
         </div>
       </div>
-      <div class="table-container table-responsive">
-        <table class="table table-hover align-middle mb-0">
+
+      <div class="d-flex justify-content-end mb-2">
+        <button class="btn btn-outline-primary btn-sm" onclick="screenshotTabel()">📸 Screenshot</button>
+      </div>
+
+      <div class="table-container">
+        <table>
           <thead>
             <tr>
               <th>NIK</th>
@@ -158,28 +142,33 @@
               <th>No Kamar</th>
             </tr>
           </thead>
-          <tbody id="hasilNikNama">
-            <tr><td colspan="6" class="text-center text-muted">Silakan lakukan pencarian</td></tr>
+          <tbody id="hasilNik">
+            <tr><td colspan="6" class="text-center text-muted">Silakan cari data</td></tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- Tab 2: Block / No Kamar -->
-    <div class="tab-pane fade" id="block" role="tabpanel">
-      <div class="row g-2 mb-3 justify-content-center">
+    <!-- TAB BLOCK -->
+    <div class="tab-pane fade" id="blokTab">
+      <div class="row g-2 mb-3">
         <div class="col-md-4">
-          <input type="text" id="searchBlock" class="form-control" placeholder="Cari Block">
+          <input id="cariBlock" class="form-control" placeholder="Block">
         </div>
         <div class="col-md-4">
-          <input type="text" id="searchKamar" class="form-control" placeholder="Cari No Kamar">
+          <input id="cariKamar" class="form-control" placeholder="No Kamar">
         </div>
-        <div class="col-md-2 d-grid">
+        <div class="col-md-4 d-grid">
           <button class="btn btn-primary" onclick="cariBlockKamar()">Cari</button>
         </div>
       </div>
-      <div class="table-container table-responsive">
-        <table class="table table-hover align-middle mb-0">
+
+      <div class="d-flex justify-content-end mb-2">
+        <button class="btn btn-outline-primary btn-sm" onclick="screenshotTabel()">📸 Screenshot</button>
+      </div>
+
+      <div class="table-container">
+        <table>
           <thead>
             <tr>
               <th>NIK</th>
@@ -190,8 +179,8 @@
               <th>No Kamar</th>
             </tr>
           </thead>
-          <tbody id="hasilBlockKamar">
-            <tr><td colspan="6" class="text-center text-muted">Silakan lakukan pencarian</td></tr>
+          <tbody id="hasilBlock">
+            <tr><td colspan="6" class="text-center text-muted">Silakan cari data</td></tr>
           </tbody>
         </table>
       </div>
@@ -201,66 +190,54 @@
 </div>
 
 <script>
-  const SUPABASE_URL = "https://afyqquoxqbnuaijhyszx.supabase.co";
-  const SUPABASE_ANON_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmeXFxdW94cWJudWFpamh5c3p4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxNTI5NzgsImV4cCI6MjA4MzcyODk3OH0.Sa-dNSosI7Ol_w-_HZA3B6welLSLZHwKX9hMt9fZCQM";
+  // ================= SUPABASE =================
+  const supabaseClient = supabase.createClient(
+    "https://afyqquoxqbnuaijhyszx.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmeXFxdW94cWJudWFpamh5c3p4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxNTI5NzgsImV4cCI6MjA4MzcyODk3OH0.Sa-dNSosI7Ol_w-_HZA3B6welLSLZHwKX9hMt9fZCQM"
+  );
 
-  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  // --- Render tabel cepat ---
-  function renderTable(tbody, data) {
+  function render(tbody, data) {
     if (!data || data.length === 0) {
       tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">Data tidak ditemukan</td></tr>`;
       return;
     }
 
-    let rowsHTML = "";
-    data.forEach(row => {
-      rowsHTML += `<tr>
-        <td>${row.nik ?? "-"}</td>
-        <td>${row.nama ?? "-"}</td>
-        <td>${row.department ?? "-"}</td>
-        <td>${row.jabatan ?? "-"}</td>
-        <td>${row.block ?? "-"}</td>
-        <td>${row.no_kamar ?? "-"}</td>
-      </tr>`;
+    let html = "";
+    data.forEach(r => {
+      html += `
+        <tr>
+          <td>${r.nik ?? "-"}</td>
+          <td>${r.nama ?? "-"}</td>
+          <td>${r.department ?? "-"}</td>
+          <td>${r.jabatan ?? "-"}</td>
+          <td>${r.block ?? "-"}</td>
+          <td>${r.no_kamar ?? "-"}</td>
+        </tr>`;
     });
-    tbody.innerHTML = rowsHTML;
+    tbody.innerHTML = html;
   }
 
-  // --- Pencarian NIK / Nama ---
   async function cariNikNama() {
-    const nama = document.getElementById("searchNikNama").value.trim();
-    const tbody = document.getElementById("hasilNikNama");
-    if (!nama) {
-      tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">Silakan ketik NIK / Nama</td></tr>`;
-      return;
-    }
+    const q = document.getElementById("cariNik").value.trim();
+    if (!q) return;
 
     const { data, error } = await supabaseClient
       .from("Karyawan")
       .select("*")
-      .or(`nama.ilike.%${nama}%,nik.ilike.%${nama}%`)
+      .or(`nik.ilike.%${q}%,nama.ilike.%${q}%`)
       .limit(10);
 
     if (error) {
-      tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">❌ ${error.message}</td></tr>`;
+      alert(error.message);
       return;
     }
 
-    renderTable(tbody, data);
+    render(document.getElementById("hasilNik"), data);
   }
 
-  // --- Pencarian Block / No Kamar ---
   async function cariBlockKamar() {
-    const block = document.getElementById("searchBlock").value.trim();
-    const kamar = document.getElementById("searchKamar").value.trim();
-    const tbody = document.getElementById("hasilBlockKamar");
-
-    if (!block && !kamar) {
-      tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">Silakan isi Block atau No Kamar</td></tr>`;
-      return;
-    }
+    const block = document.getElementById("cariBlock").value.trim();
+    const kamar = document.getElementById("cariKamar").value.trim();
 
     let query = supabaseClient.from("Karyawan").select("*").limit(10);
     if (block) query = query.eq("block", block);
@@ -269,15 +246,22 @@
     const { data, error } = await query;
 
     if (error) {
-      tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">❌ ${error.message}</td></tr>`;
+      alert(error.message);
       return;
     }
 
-    renderTable(tbody, data);
+    render(document.getElementById("hasilBlock"), data);
   }
 
-  // Auto-search saat mengetik NIK / Nama
-  document.getElementById("searchNikNama").addEventListener("input", () => { cariNikNama(); });
+  function screenshotTabel() {
+    const el = document.querySelector(".tab-pane.active .table-container");
+    html2canvas(el, { scale: 2, backgroundColor: "#fff" }).then(canvas => {
+      const a = document.createElement("a");
+      a.download = "mess_karyawan.png";
+      a.href = canvas.toDataURL("image/png");
+      a.click();
+    });
+  }
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
