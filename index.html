@@ -59,16 +59,17 @@ body {
   padding: 25px;
   box-shadow: 0 10px 30px rgba(0,0,0,.15);
   position: relative;
+  transition: background 0.3s;
 }
 
 h2 { text-align: center; color: var(--primary); margin-bottom: 4px; }
 .subtitle { text-align: center; font-size: 14px; color: var(--text-muted); }
 
 .dark-toggle { text-align: right; margin-bottom: 10px; }
-.form-control, .btn { height: 45px; border-radius: 10px; }
-
+.form-control, .btn { height: 45px; border-radius: 10px; transition: all 0.2s ease; }
 body.dark .form-control::placeholder { color: var(--text-muted); opacity: 1; }
 
+/* Table styling */
 .table-container{
   max-height: 380px;
   overflow: auto;
@@ -82,23 +83,35 @@ th {
   background: var(--primary);
   color: #fff;
 }
-th, td { border: 1px solid var(--border); padding: 8px; font-size: 14px; }
-tbody tr:hover { background: var(--hover); }
+th, td { border: 1px solid var(--border); padding: 8px; font-size: 14px; transition: all 0.2s ease; }
+tbody tr:hover { background: var(--hover); transform: scale(1.01); }
+tbody tr:nth-child(even) { background: rgba(0,0,0,0.03); }
+body.dark tbody tr:nth-child(even) { background: rgba(255,255,255,0.05); }
 
 .badge.bg-primary { background-color: var(--badge-primary); }
 .badge.bg-secondary { background-color: var(--badge-secondary); }
 
 #screenshot-header { display: none; text-align: center; margin-bottom: 10px; }
 #screenshot-header img { height: 50px; margin-bottom: 6px; }
-.watermark {
-  position: absolute; bottom: 20px; right: 20px;
-  font-size: 24px; opacity: 0.08;
-  transform: rotate(-20deg);
-  pointer-events: none; font-weight: 700;
-  display: none;
+
+.btn-primary {
+  background: linear-gradient(135deg,#4dabf7,#1e40af);
+  border: none;
+}
+.btn-outline-primary {
+  transition: all 0.3s;
+}
+.btn-outline-primary:hover {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
 }
 
+/* Icons in table (optional) */
+td i { margin-right: 4px; }
+
 .footer { text-align: center; font-size: 12px; color: var(--text-muted); margin-top: 20px; }
+
 </style>
 </head>
 
@@ -120,8 +133,6 @@ tbody tr:hover { background: var(--hover); }
     <small id="screenshot-time"></small>
   </div>
 
-  <div class="watermark" id="watermark">NAMA PERUSAHAAN</div>
-
   <ul class="nav nav-tabs justify-content-center mb-3">
     <li class="nav-item">
       <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab1">NIK / Nama</button>
@@ -137,10 +148,10 @@ tbody tr:hover { background: var(--hover); }
     <div class="tab-pane fade show active" id="tab1">
       <div class="row g-2 mb-3">
         <div class="col-md-9"><input id="cariNik" class="form-control" placeholder="Cari NIK atau Nama"></div>
-        <div class="col-md-3 d-grid"><button class="btn btn-primary" onclick="cariNikNama()">Cari</button></div>
+        <div class="col-md-3 d-grid"><button class="btn btn-primary" onclick="cariNikNama()"><i class="bi bi-search"></i> Cari</button></div>
       </div>
       <div class="d-flex justify-content-end mb-2">
-        <button class="btn btn-outline-primary btn-sm" onclick="screenshotTabel()">📸 Screenshot</button>
+        <button class="btn btn-outline-primary btn-sm" onclick="screenshotTabel()"><i class="bi bi-camera"></i> Screenshot</button>
       </div>
       <div id="screenshot-area">
         <div class="table-container">
@@ -163,10 +174,10 @@ tbody tr:hover { background: var(--hover); }
       <div class="row g-2 mb-3">
         <div class="col-md-4"><input id="cariBlock" class="form-control" placeholder="Block"></div>
         <div class="col-md-4"><input id="cariKamar" class="form-control" placeholder="No Kamar"></div>
-        <div class="col-md-4 d-grid"><button class="btn btn-primary" onclick="cariBlockKamar()">Cari</button></div>
+        <div class="col-md-4 d-grid"><button class="btn btn-primary" onclick="cariBlockKamar()"><i class="bi bi-search"></i> Cari</button></div>
       </div>
       <div class="d-flex justify-content-end mb-2">
-        <button class="btn btn-outline-primary btn-sm" onclick="screenshotTabel()">📸 Screenshot</button>
+        <button class="btn btn-outline-primary btn-sm" onclick="screenshotTabel()"><i class="bi bi-camera"></i> Screenshot</button>
       </div>
       <div id="screenshot-area">
         <div class="table-container">
@@ -212,7 +223,7 @@ function render(tbody,data){
   }
   tbody.innerHTML=data.map(r=>`
     <tr>
-      <td>${r.nik??"-"}</td>
+      <td><i class="bi bi-person"></i> ${r.nik??"-"}</td>
       <td>${r.nama??"-"}</td>
       <td>${r.department??"-"}</td>
       <td>${r.jabatan??"-"}</td>
@@ -243,10 +254,8 @@ function screenshotTabel(){
   const activeTab = document.querySelector(".tab-pane.active");
   const screenshotArea = activeTab.querySelector("#screenshot-area");
   const header = document.getElementById("screenshot-header");
-  const watermark = document.getElementById("watermark");
   const timeEl = document.getElementById("screenshot-time");
 
-  // waktu
   const now = new Date();
   const pad = n => n.toString().padStart(2,"0");
   const date = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
@@ -260,7 +269,6 @@ function screenshotTabel(){
   wrapper.style.padding = "16px";
   wrapper.style.width = "1080px";
 
-  watermark.style.display="block";
   const headerClone = header.cloneNode(true);
   headerClone.style.display="block";
   const areaClone = screenshotArea.cloneNode(true);
@@ -279,7 +287,6 @@ function screenshotTabel(){
       a.download=`screenshot_${date}_${time}.png`;
       a.href=canvas.toDataURL("image/png");
       a.click();
-      watermark.style.display="none";
       wrapper.remove();
     });
   },200);
