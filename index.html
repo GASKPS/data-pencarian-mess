@@ -60,14 +60,10 @@
       <input type="text" id="cariNama" class="form-control" placeholder="Cari NIK / Nama">
     </div>
     <div class="col-md">
-      <select id="cariBlock" class="form-select">
-        <option value="">Pilih Block</option>
-      </select>
+      <input type="text" id="cariBlock" class="form-control" placeholder="Cari Block">
     </div>
     <div class="col-md">
-      <select id="cariKamar" class="form-select">
-        <option value="">Pilih No Kamar</option>
-      </select>
+      <input type="text" id="cariKamar" class="form-control" placeholder="Cari No Kamar">
     </div>
     <div class="col-md-2 d-grid">
       <button class="btn btn-primary" onclick="cariData()">Cari</button>
@@ -104,33 +100,6 @@
 
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // Load dropdown filters
-  async function loadFilters() {
-    const { data } = await supabaseClient.from("Karyawan").select("block,no_kamar");
-    if (!data) return;
-
-    const blockSet = new Set();
-    const kamarSet = new Set();
-    data.forEach(r => {
-      if (r.block) blockSet.add(r.block);
-      if (r.no_kamar) kamarSet.add(r.no_kamar);
-    });
-
-    const blockSelect = document.getElementById("cariBlock");
-    blockSet.forEach(b => {
-      const opt = document.createElement("option");
-      opt.value = b; opt.textContent = b;
-      blockSelect.appendChild(opt);
-    });
-
-    const kamarSelect = document.getElementById("cariKamar");
-    kamarSet.forEach(k => {
-      const opt = document.createElement("option");
-      opt.value = k; opt.textContent = k;
-      kamarSelect.appendChild(opt);
-    });
-  }
-
   // Cari data (maksimal 10)
   async function cariData() {
     const nama = document.getElementById("cariNama").value.trim();
@@ -142,7 +111,7 @@
     // Partial search untuk NIK/Nama
     if (nama) query = query.or(`nama.ilike.%${nama}%,nik.ilike.%${nama}%`);
 
-    // Exact match untuk Block & No Kamar
+    // Exact match untuk Block & No Kamar (jika diisi)
     if (block) query = query.eq("block", block);
     if (kamar) query = query.eq("no_kamar", kamar);
 
@@ -176,8 +145,8 @@
 
   // Auto-search saat mengetik NIK/Nama
   document.getElementById("cariNama").addEventListener("input", () => { cariData(); });
-
-  window.onload = loadFilters;
+  document.getElementById("cariBlock").addEventListener("input", () => { cariData(); });
+  document.getElementById("cariKamar").addEventListener("input", () => { cariData(); });
 </script>
 
 <!-- Bootstrap JS -->
