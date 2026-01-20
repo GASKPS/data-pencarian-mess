@@ -69,6 +69,38 @@ h2 { text-align: center; color: var(--primary); margin-bottom: 4px; }
 .form-control, .btn { height: 45px; border-radius: 10px; transition: all 0.2s ease; }
 body.dark .form-control::placeholder { color: var(--text-muted); opacity: 1; }
 
+/* ================= HALF ECLIPSE ICON (MATAHARI + BULAN) ================= */
+.eclipse {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  display: inline-block;
+}
+
+.eclipse .sun {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #facc15;
+  box-shadow: 0 0 6px rgba(250,204,21,.8);
+  transition: transform 0.4s ease;
+}
+
+.eclipse .moon {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #0f172a;
+  transform: translateX(-26px);
+  transition: transform 0.4s ease;
+}
+
+body.dark .eclipse .moon {
+  transform: translateX(0);
+  box-shadow: 0 0 6px #22d3ee, 0 0 14px rgba(34,211,238,.8);
+}
+/* =================================================================== */
+
 /* Table styling */
 .table-container{
   max-height: 380px;
@@ -119,8 +151,14 @@ td i { margin-right: 4px; }
 
 <div class="card">
 
+  <!-- DARK MODE: HALF ECLIPSE ICON -->
   <div class="dark-toggle">
-    <button class="btn btn-outline-primary btn-sm" onclick="toggleDark()">🌙 / ☀️</button>
+    <button class="btn btn-outline-primary btn-sm" onclick="toggleDark()" title="Dark / Light Mode">
+      <span class="eclipse">
+        <span class="sun"></span>
+        <span class="moon"></span>
+      </span>
+    </button>
   </div>
 
   <h2>Mess Karyawan</h2>
