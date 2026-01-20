@@ -95,99 +95,69 @@
     </table>
   </div>
 
-  <!-- Pagination -->
-  <nav>
-    <ul class="pagination justify-content-center" id="pagination"></ul>
-  </nav>
-
 </div>
 
 <script>
-  // Supabase
   const SUPABASE_URL = "https://afyqquoxqbnuaijhyszx.supabase.co";
   const SUPABASE_ANON_KEY =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmeXFxdW94cWJudWFpamh5c3p4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxNTI5NzgsImV4cCI6MjA4MzcyODk3OH0.Sa-dNSosI7Ol_w-_HZA3B6welLSLZHwKX9hMt9fZCQM";
 
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // Pagination
-  let currentPage = 1;
-  const rowsPerPage = 20;
-  let currentData = [];
-
-  // Load unique block & kamar untuk dropdown
+  // Load dropdown filters
   async function loadFilters() {
-    const { data, error } = await supabaseClient
-      .from("Karyawan")
-      .select("block,no_kamar");
-
+    const { data } = await supabaseClient.from("Karyawan").select("block,no_kamar");
     if (!data) return;
 
     const blockSet = new Set();
     const kamarSet = new Set();
-
     data.forEach(r => {
       if (r.block) blockSet.add(r.block);
       if (r.no_kamar) kamarSet.add(r.no_kamar);
     });
 
     const blockSelect = document.getElementById("cariBlock");
-    const kamarSelect = document.getElementById("cariKamar");
-
     blockSet.forEach(b => {
       const opt = document.createElement("option");
-      opt.value = b;
-      opt.textContent = b;
+      opt.value = b; opt.textContent = b;
       blockSelect.appendChild(opt);
     });
 
+    const kamarSelect = document.getElementById("cariKamar");
     kamarSet.forEach(k => {
       const opt = document.createElement("option");
-      opt.value = k;
-      opt.textContent = k;
+      opt.value = k; opt.textContent = k;
       kamarSelect.appendChild(opt);
     });
   }
 
+  // Cari data (maksimal 10)
   async function cariData() {
     const nama = document.getElementById("cariNama").value.trim();
     const block = document.getElementById("cariBlock").value.trim();
     const kamar = document.getElementById("cariKamar").value.trim();
 
-    let query = supabaseClient.from("Karyawan").select("*");
+    let query = supabaseClient.from("Karyawan").select("*").limit(10);
 
     if (nama) query = query.or(`nama.ilike.%${nama}%,nik.ilike.%${nama}%`);
     if (block) query = query.ilike("block", `%${block}%`);
     if (kamar) query = query.ilike("no_kamar", `%${kamar}%`);
 
     const { data, error } = await query;
-
-    if (error) {
-      document.getElementById("hasil").innerHTML =
-        `<tr><td colspan="6" class="text-center text-danger">❌ ${error.message}</td></tr>`;
-      return;
-    }
-
-    currentData = data || [];
-    currentPage = 1;
-    renderTable();
-    renderPagination();
-  }
-
-  function renderTable() {
     const tbody = document.getElementById("hasil");
     tbody.innerHTML = "";
 
-    if (!currentData || currentData.length === 0) {
+    if (error) {
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">❌ ${error.message}</td></tr>`;
+      return;
+    }
+
+    if (!data || data.length === 0) {
       tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">Data tidak ditemukan</td></tr>`;
       return;
     }
 
-    const start = (currentPage - 1) * rowsPerPage;
-    const end = start + rowsPerPage;
-    const pageData = currentData.slice(start, end);
-
-    pageData.forEach(row => {
+    data.forEach(row => {
       tbody.innerHTML += `
         <tr>
           <td>${row.nik ?? "-"}</td>
@@ -201,33 +171,9 @@
     });
   }
 
-  function renderPagination() {
-    const totalPages = Math.ceil(currentData.length / rowsPerPage);
-    const pag = document.getElementById("pagination");
-    pag.innerHTML = "";
-
-    if (totalPages <= 1) return;
-
-    for (let i = 1; i <= totalPages; i++) {
-      const li = document.createElement("li");
-      li.className = `page-item ${i === currentPage ? "active" : ""}`;
-      li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
-      li.addEventListener("click", e => {
-        e.preventDefault();
-        currentPage = i;
-        renderTable();
-        renderPagination();
-      });
-      pag.appendChild(li);
-    }
-  }
-
   // Auto-search saat mengetik
-  document.getElementById("cariNama").addEventListener("input", () => {
-    cariData();
-  });
+  document.getElementById("cariNama").addEventListener("input", () => { cariData(); });
 
-  // Load filters saat start
   window.onload = loadFilters;
 </script>
 
