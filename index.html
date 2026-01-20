@@ -7,6 +7,7 @@
 
 <!-- Bootstrap -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 
 <!-- Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -15,57 +16,92 @@
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 <style>
-:root {
-  --bg:#f1f3f6; --card:#ffffff; --text:#111827; --primary:#1e3a8a; --border:#ddd;
+:root{
+  --bg: #f1f3f6;
+  --card: #ffffff;
+  --text: #111827;
+  --text-muted: #6b7280;
+  --primary: #1e3a8a;
+  --border: #ddd;
+  --hover: rgba(30,58,138,.05);
+  --badge-primary: #0d6efd;
+  --badge-secondary: #6c757d;
 }
-body.dark { --bg:#0f172a; --card:#020617; --text:#e5e7eb; --primary:#60a5fa; --border:#334155; }
+
+body.dark{
+  --bg: #121212;
+  --card: #1e1e1e;
+  --text: #ffffff;
+  --text-muted: #cccccc;
+  --primary: #4dabf7;
+  --border: #2c2c2c;
+  --hover: rgba(77,171,247,0.08);
+  --badge-primary: #3b82f6;
+  --badge-secondary: #6b7280;
+}
 
 body {
-  background:var(--bg);
-  color:var(--text);
-  min-height:100vh;
-  padding:40px 15px;
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;
-  font-family:"Segoe UI",sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 40px 15px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  font-family: "Segoe UI", sans-serif;
 }
 
 .card {
-  max-width:950px;
-  width:100%;
-  background:var(--card);
-  border-radius:16px;
-  padding:25px;
-  box-shadow:0 10px 30px rgba(0,0,0,.15);
-  position:relative;
+  max-width: 950px;
+  width: 100%;
+  background: var(--card);
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.15);
+  position: relative;
 }
 
-h2 { text-align:center; color:var(--primary); margin-bottom:10px; }
-.dark-toggle { text-align:right; margin-bottom:10px; }
-.form-control,.btn { height:45px; border-radius:10px; }
+h2 { text-align: center; color: var(--primary); margin-bottom: 4px; }
+.subtitle { text-align: center; font-size: 14px; color: var(--text-muted); }
 
-.table-container {
-  max-height:380px;
-  overflow:auto;
-  border-radius:10px;
-  background:var(--card);
-  box-shadow:0 4px 12px rgba(0,0,0,.1);
+.dark-toggle { text-align: right; margin-bottom: 10px; }
+.form-control, .btn { height: 45px; border-radius: 10px; }
+
+body.dark .form-control::placeholder { color: var(--text-muted); opacity: 1; }
+
+.table-container{
+  max-height: 380px;
+  overflow: auto;
+  border-radius: 10px;
+  background: var(--card);
+  box-shadow: 0 4px 12px rgba(0,0,0,.1);
 }
-table { width:100%; border-collapse:collapse; }
-th { position:sticky; top:0; background:var(--primary); color:#fff; }
-th,td { border:1px solid var(--border); padding:8px; font-size:14px; }
+table { width: 100%; border-collapse: collapse; color: var(--text); }
+th {
+  position: sticky; top: 0;
+  background: var(--primary);
+  color: #fff;
+}
+th, td { border: 1px solid var(--border); padding: 8px; font-size: 14px; }
+tbody tr:hover { background: var(--hover); }
 
-/* Screenshot only */
-#screenshot-header { display:none; text-align:center; margin-bottom:10px; }
-#screenshot-header img { height:50px; margin-bottom:6px; }
+.badge.bg-primary { background-color: var(--badge-primary); }
+.badge.bg-secondary { background-color: var(--badge-secondary); }
+
+#screenshot-header { display: none; text-align: center; margin-bottom: 10px; }
+#screenshot-header img { height: 50px; margin-bottom: 6px; }
 .watermark {
-  position:absolute; bottom:20px; right:20px;
-  font-size:24px; opacity:0.08; transform:rotate(-20deg);
-  pointer-events:none; font-weight:700; display:none;
+  position: absolute; bottom: 20px; right: 20px;
+  font-size: 24px; opacity: 0.08;
+  transform: rotate(-20deg);
+  pointer-events: none; font-weight: 700;
+  display: none;
 }
+
+.footer { text-align: center; font-size: 12px; color: var(--text-muted); margin-top: 20px; }
 </style>
 </head>
+
 <body>
 
 <div class="card">
@@ -75,17 +111,17 @@ th,td { border:1px solid var(--border); padding:8px; font-size:14px; }
   </div>
 
   <h2>Mess Karyawan</h2>
+  <div class="subtitle">Sistem Informasi Penghuni Mess</div>
+  <hr>
 
-  <!-- Screenshot header -->
   <div id="screenshot-header">
     <img src="logo.png" alt="Logo">
-    <h5 style="margin:0;font-weight:600">Data Mess Karyawan</h5>
+    <h5 class="fw-semibold mb-0">Data Mess Karyawan</h5>
     <small id="screenshot-time"></small>
   </div>
 
   <div class="watermark" id="watermark">NAMA PERUSAHAAN</div>
 
-  <!-- Tabs -->
   <ul class="nav nav-tabs justify-content-center mb-3">
     <li class="nav-item">
       <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab1">NIK / Nama</button>
@@ -100,18 +136,12 @@ th,td { border:1px solid var(--border); padding:8px; font-size:14px; }
     <!-- TAB 1 -->
     <div class="tab-pane fade show active" id="tab1">
       <div class="row g-2 mb-3">
-        <div class="col-md-9">
-          <input id="cariNik" class="form-control" placeholder="Cari NIK atau Nama">
-        </div>
-        <div class="col-md-3 d-grid">
-          <button class="btn btn-primary" onclick="cariNikNama()">Cari</button>
-        </div>
+        <div class="col-md-9"><input id="cariNik" class="form-control" placeholder="Cari NIK atau Nama"></div>
+        <div class="col-md-3 d-grid"><button class="btn btn-primary" onclick="cariNikNama()">Cari</button></div>
       </div>
-
       <div class="d-flex justify-content-end mb-2">
         <button class="btn btn-outline-primary btn-sm" onclick="screenshotTabel()">📸 Screenshot</button>
       </div>
-
       <div id="screenshot-area">
         <div class="table-container">
           <table>
@@ -133,15 +163,11 @@ th,td { border:1px solid var(--border); padding:8px; font-size:14px; }
       <div class="row g-2 mb-3">
         <div class="col-md-4"><input id="cariBlock" class="form-control" placeholder="Block"></div>
         <div class="col-md-4"><input id="cariKamar" class="form-control" placeholder="No Kamar"></div>
-        <div class="col-md-4 d-grid">
-          <button class="btn btn-primary" onclick="cariBlockKamar()">Cari</button>
-        </div>
+        <div class="col-md-4 d-grid"><button class="btn btn-primary" onclick="cariBlockKamar()">Cari</button></div>
       </div>
-
       <div class="d-flex justify-content-end mb-2">
         <button class="btn btn-outline-primary btn-sm" onclick="screenshotTabel()">📸 Screenshot</button>
       </div>
-
       <div id="screenshot-area">
         <div class="table-container">
           <table>
@@ -159,6 +185,9 @@ th,td { border:1px solid var(--border); padding:8px; font-size:14px; }
     </div>
 
   </div>
+
+  <div class="footer">© 2026 NAMA PERUSAHAAN • Internal System</div>
+
 </div>
 
 <script>
@@ -187,14 +216,13 @@ function render(tbody,data){
       <td>${r.nama??"-"}</td>
       <td>${r.department??"-"}</td>
       <td>${r.jabatan??"-"}</td>
-      <td>${r.block??"-"}</td>
-      <td>${r.no_kamar??"-"}</td>
+      <td><span class="badge bg-primary">${r.block??"-"}</span></td>
+      <td><span class="badge bg-secondary">${r.no_kamar??"-"}</span></td>
     </tr>`).join("");
 }
 
 /* SEARCH */
 async function cariNikNama(){
-  if(!cariNik.value) return;
   const {data} = await supabaseClient.from("Karyawan")
     .select("*")
     .or(`nik.ilike.%${cariNik.value}%,nama.ilike.%${cariNik.value}%`)
@@ -210,7 +238,7 @@ async function cariBlockKamar(){
   render(hasilBlock,data);
 }
 
-/* SCREENSHOT (FIXED) */
+/* SCREENSHOT DENGAN DARK MODE */
 function screenshotTabel(){
   const activeTab = document.querySelector(".tab-pane.active");
   const screenshotArea = activeTab.querySelector("#screenshot-area");
@@ -218,37 +246,36 @@ function screenshotTabel(){
   const watermark = document.getElementById("watermark");
   const timeEl = document.getElementById("screenshot-time");
 
+  // waktu
   const now = new Date();
   const pad = n => n.toString().padStart(2,"0");
   const date = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
   const time = `${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
-  timeEl.innerText = `Tanggal: ${date} | Jam: ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  timeEl.innerText=`Tanggal: ${date} | Jam: ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
 
+  const wrapper = document.createElement("div");
+  wrapper.style.position = "fixed";
+  wrapper.style.left = "-9999px";
+  wrapper.style.background = getComputedStyle(document.body).getPropertyValue('--bg').trim() || '#fff';
+  wrapper.style.padding = "16px";
+  wrapper.style.width = "1080px";
+
+  watermark.style.display="block";
   const headerClone = header.cloneNode(true);
   headerClone.style.display="block";
   const areaClone = screenshotArea.cloneNode(true);
-
-  const wrapper = document.createElement("div");
-  wrapper.style.position="fixed";
-  wrapper.style.left="-9999px";
-  wrapper.style.background="#fff";
-  wrapper.style.padding="16px";
-  wrapper.style.width="1080px";
-
-  watermark.style.display="block";
-
   wrapper.appendChild(headerClone);
   wrapper.appendChild(areaClone);
   document.body.appendChild(wrapper);
 
   const tc = wrapper.querySelector(".table-container");
-  tc.style.maxHeight="none";
-  tc.style.overflow="visible";
+  tc.style.maxHeight = "none";
+  tc.style.overflow = "visible";
 
   setTimeout(()=>{
-    html2canvas(wrapper,{scale:1.2,backgroundColor:"#fff",useCORS:true})
+    html2canvas(wrapper,{scale:1.2, backgroundColor: getComputedStyle(document.body).getPropertyValue('--bg').trim(), useCORS:true})
     .then(canvas=>{
-      const a=document.createElement("a");
+      const a = document.createElement("a");
       a.download=`screenshot_${date}_${time}.png`;
       a.href=canvas.toDataURL("image/png");
       a.click();
