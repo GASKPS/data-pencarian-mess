@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Test Supabase</title>
+  <title>Pencarian Data Mess</title>
 
   <!-- Supabase JS v2 -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -10,34 +10,71 @@
   <style>
     body {
       font-family: Arial, sans-serif;
+      background: #f4f6f8;
       padding: 20px;
-      background: #f4f4f4;
     }
+
     h2 {
       text-align: center;
     }
+
+    .search-box {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    input, button {
+      padding: 8px;
+      font-size: 14px;
+    }
+
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 20px;
-      background: #fff;
+      background: white;
     }
+
     th, td {
       border: 1px solid #ddd;
       padding: 8px;
       text-align: left;
     }
+
     th {
       background: #007bff;
-      color: #fff;
+      color: white;
+    }
+
+    .center {
+      text-align: center;
     }
   </style>
 </head>
 <body>
 
-<h2>Test Koneksi Supabase</h2>
+<h2>Pencarian Data Mess Karyawan</h2>
 
-<table id="tabel-data">
+<div class="search-box">
+  <input type="text" id="cariNama" placeholder="Cari NIK / Nama">
+  <input type="text" id="cariBlock" placeholder="Block">
+  <input type="text" id="cariKamar" placeholder="No Kamar">
+  <button onclick="cariData()">Cari</button>
+</div>
+
+<table>
   <thead>
     <tr>
       <th>NIK</th>
@@ -48,43 +85,61 @@
       <th>No Kamar</th>
     </tr>
   </thead>
-  <tbody></tbody>
+  <tbody id="hasil"></tbody>
 </table>
 
 <script>
-  // ✅ Supabase credentials (dari kamu)
+  // Supabase credentials
   const SUPABASE_URL = "https://afyqquoxqbnuaijhyszx.supabase.co";
   const SUPABASE_ANON_KEY =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmeXFxdW94cWJudWFpamh5c3p4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxNTI5NzgsImV4cCI6MjA4MzcyODk3OH0.Sa-dNSosI7Ol_w-_HZA3B6welLSLZHwKX9hMt9fZCQM";
 
-  // ✅ Buat client Supabase (INI YANG BENAR)
   const supabaseClient = supabase.createClient(
     SUPABASE_URL,
     SUPABASE_ANON_KEY
   );
 
-  async function tampilkanData() {
-    const { data, error } = await supabaseClient
-      .from("Karyawan")
-      .select("*");
+  async function cariData() {
+    const nama = document.getElementById("cariNama").value.trim();
+    const block = document.getElementById("cariBlock").value.trim();
+    const kamar = document.getElementById("cariKamar").value.trim();
 
-    const tbody = document.querySelector("#tabel-data tbody");
+    let query = supabaseClient
+      .from("Karyawan")
+      .select("*")
+      .limit(100);
+
+    if (nama) {
+      query = query.or(
+        `nama.ilike.%${nama}%,nik.ilike.%${nama}%`
+      );
+    }
+
+    if (block) {
+      query = query.ilike("block", `%${block}%`);
+    }
+
+    if (kamar) {
+      query = query.ilike("no_kamar", `%${kamar}%`);
+    }
+
+    const { data, error } = await query;
+
+    const tbody = document.getElementById("hasil");
     tbody.innerHTML = "";
 
     if (error) {
       tbody.innerHTML = `
-        <tr>
-          <td colspan="6">❌ Error: ${error.message}</td>
-        </tr>`;
+        <tr><td colspan="6" class="center">❌ ${error.message}</td></tr>
+      `;
       console.error(error);
       return;
     }
 
     if (!data || data.length === 0) {
       tbody.innerHTML = `
-        <tr>
-          <td colspan="6">Data kosong</td>
-        </tr>`;
+        <tr><td colspan="6" class="center">Data tidak ditemukan</td></tr>
+      `;
       return;
     }
 
@@ -101,9 +156,6 @@
       `;
     });
   }
-
-  // Jalankan saat halaman dibuka
-  window.onload = tampilkanData;
 </script>
 
 </body>
