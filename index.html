@@ -139,9 +139,12 @@
 
     let query = supabaseClient.from("Karyawan").select("*").limit(10);
 
+    // Partial search untuk NIK/Nama
     if (nama) query = query.or(`nama.ilike.%${nama}%,nik.ilike.%${nama}%`);
-    if (block) query = query.ilike("block", `%${block}%`);
-    if (kamar) query = query.ilike("no_kamar", `%${kamar}%`);
+
+    // Exact match untuk Block & No Kamar
+    if (block) query = query.eq("block", block);
+    if (kamar) query = query.eq("no_kamar", kamar);
 
     const { data, error } = await query;
     const tbody = document.getElementById("hasil");
@@ -171,7 +174,7 @@
     });
   }
 
-  // Auto-search saat mengetik
+  // Auto-search saat mengetik NIK/Nama
   document.getElementById("cariNama").addEventListener("input", () => { cariData(); });
 
   window.onload = loadFilters;
