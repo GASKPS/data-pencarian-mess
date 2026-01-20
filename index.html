@@ -195,7 +195,7 @@ function render(tbody,data){
 /* SEARCH */
 async function cariNikNama(){
   if(!cariNik.value) return;
-  const {data} = await supabaseClient.from("Karyawan_duplicate")
+  const {data} = await supabaseClient.from("Karyawan")
     .select("*")
     .or(`nik.ilike.%${cariNik.value}%,nama.ilike.%${cariNik.value}%`)
     .limit(10);
@@ -203,7 +203,7 @@ async function cariNikNama(){
 }
 
 async function cariBlockKamar(){
-  let q = supabaseClient.from("Karyawan_duplicate").select("*").limit(10);
+  let q = supabaseClient.from("Karyawan").select("*").limit(10);
   if(cariBlock.value) q=q.eq("block",cariBlock.value);
   if(cariKamar.value) q=q.eq("no_kamar",cariKamar.value);
   const {data} = await q;
