@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mess Karyawan</title>
 
   <!-- Bootstrap -->
@@ -15,14 +15,34 @@
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
   <style>
+    :root {
+      --bg: #f1f3f6;
+      --card: #ffffff;
+      --text: #111827;
+      --primary: #1e3a8a;
+      --table-hover: #e7f1ff;
+      --border: #dddddd;
+    }
+
+    body.dark {
+      --bg: #0f172a;
+      --card: #020617;
+      --text: #e5e7eb;
+      --primary: #60a5fa;
+      --table-hover: #1e293b;
+      --border: #334155;
+    }
+
     body {
-      background: #f1f3f6;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: flex-start;
       padding: 40px 15px;
       font-family: "Segoe UI", sans-serif;
+      transition: background .3s, color .3s;
     }
 
     .card {
@@ -30,25 +50,33 @@
       width: 100%;
       border-radius: 16px;
       border: none;
-      box-shadow: 0 10px 30px rgba(0,0,0,.12);
+      background: var(--card);
+      box-shadow: 0 10px 30px rgba(0,0,0,.15);
       padding: 25px;
+      transition: background .3s;
     }
 
     h2 {
       text-align: center;
-      color: #1e3a8a;
-      margin-bottom: 20px;
+      color: var(--primary);
+      margin-bottom: 10px;
       font-weight: 600;
+    }
+
+    .dark-toggle {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 10px;
     }
 
     .nav-tabs .nav-link {
       border: none;
       font-weight: 500;
-      color: #1e3a8a;
+      color: var(--primary);
     }
 
     .nav-tabs .nav-link.active {
-      background: #1e3a8a;
+      background: var(--primary);
       color: #fff;
       border-radius: 10px 10px 0 0;
     }
@@ -58,17 +86,23 @@
       border-radius: 10px;
     }
 
+    .form-control {
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
     .btn-primary {
-      background: #1e3a8a;
+      background: var(--primary);
       border: none;
     }
 
     .table-container {
       max-height: 380px;
       overflow: auto;
-      background: #fff;
+      background: var(--card);
       border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,.08);
+      box-shadow: 0 4px 12px rgba(0,0,0,.15);
     }
 
     table {
@@ -79,25 +113,31 @@
     th {
       position: sticky;
       top: 0;
-      background: #1e3a8a;
+      background: var(--primary);
       color: white;
       z-index: 2;
     }
 
     th, td {
-      border: 1px solid #ddd;
+      border: 1px solid var(--border);
       padding: 8px;
       font-size: 14px;
     }
 
     tr:hover {
-      background: #e7f1ff;
+      background: var(--table-hover);
     }
   </style>
 </head>
 <body>
 
 <div class="card">
+  <div class="dark-toggle">
+    <button class="btn btn-outline-primary btn-sm" onclick="toggleDark()">
+      🌙 / ☀️
+    </button>
+  </div>
+
   <h2>Mess Karyawan</h2>
 
   <ul class="nav nav-tabs justify-content-center mb-3">
@@ -115,7 +155,7 @@
 
   <div class="tab-content">
 
-    <!-- TAB NIK / NAMA -->
+    <!-- TAB NIK -->
     <div class="tab-pane fade show active" id="nikTab">
       <div class="row g-2 mb-3">
         <div class="col-md-9">
@@ -190,7 +230,16 @@
 </div>
 
 <script>
-  // ================= SUPABASE =================
+  // === DARK MODE ===
+  const body = document.body;
+  if (localStorage.getItem("dark") === "on") body.classList.add("dark");
+
+  function toggleDark() {
+    body.classList.toggle("dark");
+    localStorage.setItem("dark", body.classList.contains("dark") ? "on" : "off");
+  }
+
+  // === SUPABASE ===
   const supabaseClient = supabase.createClient(
     "https://afyqquoxqbnuaijhyszx.supabase.co",
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmeXFxdW94cWJudWFpamh5c3p4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxNTI5NzgsImV4cCI6MjA4MzcyODk3OH0.Sa-dNSosI7Ol_w-_HZA3B6welLSLZHwKX9hMt9fZCQM"
@@ -201,64 +250,43 @@
       tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">Data tidak ditemukan</td></tr>`;
       return;
     }
-
-    let html = "";
-    data.forEach(r => {
-      html += `
-        <tr>
-          <td>${r.nik ?? "-"}</td>
-          <td>${r.nama ?? "-"}</td>
-          <td>${r.department ?? "-"}</td>
-          <td>${r.jabatan ?? "-"}</td>
-          <td>${r.block ?? "-"}</td>
-          <td>${r.no_kamar ?? "-"}</td>
-        </tr>`;
-    });
-    tbody.innerHTML = html;
+    tbody.innerHTML = data.map(r => `
+      <tr>
+        <td>${r.nik ?? "-"}</td>
+        <td>${r.nama ?? "-"}</td>
+        <td>${r.department ?? "-"}</td>
+        <td>${r.jabatan ?? "-"}</td>
+        <td>${r.block ?? "-"}</td>
+        <td>${r.no_kamar ?? "-"}</td>
+      </tr>`).join("");
   }
 
   async function cariNikNama() {
-    const q = document.getElementById("cariNik").value.trim();
+    const q = cariNik.value.trim();
     if (!q) return;
-
-    const { data, error } = await supabaseClient
+    const { data } = await supabaseClient
       .from("Karyawan")
       .select("*")
       .or(`nik.ilike.%${q}%,nama.ilike.%${q}%`)
       .limit(10);
-
-    if (error) {
-      alert(error.message);
-      return;
-    }
-
-    render(document.getElementById("hasilNik"), data);
+    render(hasilNik, data);
   }
 
   async function cariBlockKamar() {
-    const block = document.getElementById("cariBlock").value.trim();
-    const kamar = document.getElementById("cariKamar").value.trim();
-
     let query = supabaseClient.from("Karyawan").select("*").limit(10);
-    if (block) query = query.eq("block", block);
-    if (kamar) query = query.eq("no_kamar", kamar);
-
-    const { data, error } = await query;
-
-    if (error) {
-      alert(error.message);
-      return;
-    }
-
-    render(document.getElementById("hasilBlock"), data);
+    if (cariBlock.value) query = query.eq("block", cariBlock.value);
+    if (cariKamar.value) query = query.eq("no_kamar", cariKamar.value);
+    const { data } = await query;
+    render(hasilBlock, data);
   }
 
   function screenshotTabel() {
-    const el = document.querySelector(".tab-pane.active .table-container");
-    html2canvas(el, { scale: 2, backgroundColor: "#fff" }).then(canvas => {
+    html2canvas(document.querySelector(".tab-pane.active .table-container"), {
+      scale: 2, backgroundColor: "#fff"
+    }).then(c => {
       const a = document.createElement("a");
       a.download = "mess_karyawan.png";
-      a.href = canvas.toDataURL("image/png");
+      a.href = c.toDataURL("image/png");
       a.click();
     });
   }
