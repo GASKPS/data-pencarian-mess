@@ -42,6 +42,10 @@
     table tr:hover {
       background-color: #e9f5ff;
     }
+
+    @media (max-width: 600px) {
+      .search-box .col-md, .search-box .col-md-2 { width: 100%; margin-bottom: 10px; }
+    }
   </style>
 </head>
 <body>
@@ -50,16 +54,20 @@
 
   <h2>Pencarian Data Mess Karyawan</h2>
 
-  <!-- Search Form -->
-  <div class="row g-2 mb-3">
-    <div class="col-md-4">
+  <!-- Search & Filter -->
+  <div class="row g-2 mb-3 search-box">
+    <div class="col-md">
       <input type="text" id="cariNama" class="form-control" placeholder="Cari NIK / Nama">
     </div>
-    <div class="col-md-3">
-      <input type="text" id="cariBlock" class="form-control" placeholder="Block">
+    <div class="col-md">
+      <select id="cariBlock" class="form-select">
+        <option value="">Pilih Block</option>
+      </select>
     </div>
-    <div class="col-md-3">
-      <input type="text" id="cariKamar" class="form-control" placeholder="No Kamar">
+    <div class="col-md">
+      <select id="cariKamar" class="form-select">
+        <option value="">Pilih No Kamar</option>
+      </select>
     </div>
     <div class="col-md-2 d-grid">
       <button class="btn btn-primary" onclick="cariData()">Cari</button>
@@ -87,24 +95,66 @@
     </table>
   </div>
 
+  <!-- Pagination -->
+  <nav>
+    <ul class="pagination justify-content-center" id="pagination"></ul>
+  </nav>
+
 </div>
 
 <script>
+  // Supabase
   const SUPABASE_URL = "https://afyqquoxqbnuaijhyszx.supabase.co";
   const SUPABASE_ANON_KEY =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmeXFxdW94cWJudWFpamh5c3p4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxNTI5NzgsImV4cCI6MjA4MzcyODk3OH0.Sa-dNSosI7Ol_w-_HZA3B6welLSLZHwKX9hMt9fZCQM";
 
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  // Pagination
+  let currentPage = 1;
+  const rowsPerPage = 20;
+  let currentData = [];
+
+  // Load unique block & kamar untuk dropdown
+  async function loadFilters() {
+    const { data, error } = await supabaseClient
+      .from("Karyawan")
+      .select("block,no_kamar");
+
+    if (!data) return;
+
+    const blockSet = new Set();
+    const kamarSet = new Set();
+
+    data.forEach(r => {
+      if (r.block) blockSet.add(r.block);
+      if (r.no_kamar) kamarSet.add(r.no_kamar);
+    });
+
+    const blockSelect = document.getElementById("cariBlock");
+    const kamarSelect = document.getElementById("cariKamar");
+
+    blockSet.forEach(b => {
+      const opt = document.createElement("option");
+      opt.value = b;
+      opt.textContent = b;
+      blockSelect.appendChild(opt);
+    });
+
+    kamarSet.forEach(k => {
+      const opt = document.createElement("option");
+      opt.value = k;
+      opt.textContent = k;
+      kamarSelect.appendChild(opt);
+    });
+  }
+
   async function cariData() {
     const nama = document.getElementById("cariNama").value.trim();
     const block = document.getElementById("cariBlock").value.trim();
     const kamar = document.getElementById("cariKamar").value.trim();
 
-    let query = supabaseClient
-      .from("Karyawan")
-      .select("*")
-      .limit(100);
+    let query = supabaseClient.from("Karyawan").select("*");
 
     if (nama) query = query.or(`nama.ilike.%${nama}%,nik.ilike.%${nama}%`);
     if (block) query = query.ilike("block", `%${block}%`);
@@ -112,21 +162,32 @@
 
     const { data, error } = await query;
 
-    const tbody = document.getElementById("hasil");
-    tbody.innerHTML = "";
-
     if (error) {
-      tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">❌ ${error.message}</td></tr>`;
-      console.error(error);
+      document.getElementById("hasil").innerHTML =
+        `<tr><td colspan="6" class="text-center text-danger">❌ ${error.message}</td></tr>`;
       return;
     }
 
-    if (!data || data.length === 0) {
+    currentData = data || [];
+    currentPage = 1;
+    renderTable();
+    renderPagination();
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById("hasil");
+    tbody.innerHTML = "";
+
+    if (!currentData || currentData.length === 0) {
       tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">Data tidak ditemukan</td></tr>`;
       return;
     }
 
-    data.forEach(row => {
+    const start = (currentPage - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+    const pageData = currentData.slice(start, end);
+
+    pageData.forEach(row => {
       tbody.innerHTML += `
         <tr>
           <td>${row.nik ?? "-"}</td>
@@ -139,10 +200,38 @@
       `;
     });
   }
+
+  function renderPagination() {
+    const totalPages = Math.ceil(currentData.length / rowsPerPage);
+    const pag = document.getElementById("pagination");
+    pag.innerHTML = "";
+
+    if (totalPages <= 1) return;
+
+    for (let i = 1; i <= totalPages; i++) {
+      const li = document.createElement("li");
+      li.className = `page-item ${i === currentPage ? "active" : ""}`;
+      li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+      li.addEventListener("click", e => {
+        e.preventDefault();
+        currentPage = i;
+        renderTable();
+        renderPagination();
+      });
+      pag.appendChild(li);
+    }
+  }
+
+  // Auto-search saat mengetik
+  document.getElementById("cariNama").addEventListener("input", () => {
+    cariData();
+  });
+
+  // Load filters saat start
+  window.onload = loadFilters;
 </script>
 
-<!-- Bootstrap JS (optional, for components like modal) -->
+<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>
