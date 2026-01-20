@@ -75,14 +75,27 @@
       background-color: #162b6d;
     }
 
+    /* Scroll container tanpa padding agar sticky header tidak tembus */
     .table-container {
       overflow-x: auto;
+      overflow-y: auto;
       border-radius: 10px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.08);
       margin-top: 15px;
       background-color: #fff;
-      padding: 10px;
-      max-height: 400px; /* batas scroll vertikal */
+      max-height: 400px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse; /* untuk sticky header rapi */
+    }
+
+    table th, table td {
+      padding: 8px;
+      border: 1px solid #ddd;
+      text-align: left;
+      font-size: 14px;
     }
 
     table th {
@@ -90,6 +103,7 @@
       top: 0;
       background-color: #1e3a8a;
       color: white;
+      z-index: 2;
     }
 
     table tr:hover {
@@ -133,7 +147,7 @@
         </div>
       </div>
       <div class="table-container table-responsive">
-        <table class="table table-hover table-bordered align-middle mb-0">
+        <table class="table table-hover align-middle mb-0">
           <thead>
             <tr>
               <th>NIK</th>
@@ -165,7 +179,7 @@
         </div>
       </div>
       <div class="table-container table-responsive">
-        <table class="table table-hover table-bordered align-middle mb-0">
+        <table class="table table-hover align-middle mb-0">
           <thead>
             <tr>
               <th>NIK</th>
