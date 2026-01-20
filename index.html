@@ -195,7 +195,7 @@ function render(tbody,data){
 /* SEARCH */
 async function cariNikNama(){
   if(!cariNik.value) return;
-  const {data} = await supabaseClient.from("Karyawan")
+  const {data} = await supabaseClient.from("Karyawan_duplicate")
     .select("*")
     .or(`nik.ilike.%${cariNik.value}%,nama.ilike.%${cariNik.value}%`)
     .limit(10);
