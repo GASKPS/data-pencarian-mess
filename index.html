@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mess Karyawan - Modern SPA Tengah</title>
+  <title>Mess Karyawan - Modern SPA</title>
 
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -14,6 +14,7 @@
   <style>
     html, body {
       height: 100%;
+      margin: 0;
       background-color: #f1f3f6;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
@@ -21,10 +22,8 @@
     body {
       display: flex;
       justify-content: center;
-      align-items: flex-start;
-      padding: 40px 20px 20px 20px; /* beri padding top lebih besar */
-      min-height: 100vh;
-      background-color: #f1f3f6;
+      align-items: flex-start; /* sedikit ke atas */
+      padding: 40px 20px 20px 20px;
     }
 
     .card {
@@ -83,7 +82,7 @@
       margin-top: 15px;
       background-color: #fff;
       padding: 10px;
-      max-height: 400px;
+      max-height: 400px; /* batas scroll vertikal */
     }
 
     table th {
@@ -98,7 +97,7 @@
     }
 
     @media (max-width: 576px) {
-      .row > .col-md, .row > .col-md-2 {
+      .row > .col-md, .row > .col-md-2, .row > .col-md-4 {
         width: 100%;
         margin-bottom: 10px;
       }
@@ -194,11 +193,31 @@
 
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  // --- Render tabel cepat ---
+  function renderTable(tbody, data) {
+    if (!data || data.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">Data tidak ditemukan</td></tr>`;
+      return;
+    }
+
+    let rowsHTML = "";
+    data.forEach(row => {
+      rowsHTML += `<tr>
+        <td>${row.nik ?? "-"}</td>
+        <td>${row.nama ?? "-"}</td>
+        <td>${row.department ?? "-"}</td>
+        <td>${row.jabatan ?? "-"}</td>
+        <td>${row.block ?? "-"}</td>
+        <td>${row.no_kamar ?? "-"}</td>
+      </tr>`;
+    });
+    tbody.innerHTML = rowsHTML;
+  }
+
+  // --- Pencarian NIK / Nama ---
   async function cariNikNama() {
     const nama = document.getElementById("searchNikNama").value.trim();
     const tbody = document.getElementById("hasilNikNama");
-    tbody.innerHTML = "";
-
     if (!nama) {
       tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">Silakan ketik NIK / Nama</td></tr>`;
       return;
@@ -215,28 +234,14 @@
       return;
     }
 
-    if (!data || data.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">Data tidak ditemukan</td></tr>`;
-      return;
-    }
-
-    data.forEach(row => {
-      tbody.innerHTML += `<tr>
-        <td>${row.nik ?? "-"}</td>
-        <td>${row.nama ?? "-"}</td>
-        <td>${row.department ?? "-"}</td>
-        <td>${row.jabatan ?? "-"}</td>
-        <td>${row.block ?? "-"}</td>
-        <td>${row.no_kamar ?? "-"}</td>
-      </tr>`;
-    });
+    renderTable(tbody, data);
   }
 
+  // --- Pencarian Block / No Kamar ---
   async function cariBlockKamar() {
     const block = document.getElementById("searchBlock").value.trim();
     const kamar = document.getElementById("searchKamar").value.trim();
     const tbody = document.getElementById("hasilBlockKamar");
-    tbody.innerHTML = "";
 
     if (!block && !kamar) {
       tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">Silakan isi Block atau No Kamar</td></tr>`;
@@ -254,23 +259,10 @@
       return;
     }
 
-    if (!data || data.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">Data tidak ditemukan</td></tr>`;
-      return;
-    }
-
-    data.forEach(row => {
-      tbody.innerHTML += `<tr>
-        <td>${row.nik ?? "-"}</td>
-        <td>${row.nama ?? "-"}</td>
-        <td>${row.department ?? "-"}</td>
-        <td>${row.jabatan ?? "-"}</td>
-        <td>${row.block ?? "-"}</td>
-        <td>${row.no_kamar ?? "-"}</td>
-      </tr>`;
-    });
+    renderTable(tbody, data);
   }
 
+  // Auto-search saat mengetik NIK / Nama
   document.getElementById("searchNikNama").addEventListener("input", () => { cariNikNama(); });
 </script>
 
