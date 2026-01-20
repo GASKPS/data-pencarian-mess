@@ -68,7 +68,7 @@ th,td { border:1px solid var(--border); padding:8px; font-size:14px; }
 </head>
 <body>
 
-<div class="card" id="cardRoot">
+<div class="card">
 
   <div class="dark-toggle">
     <button class="btn btn-outline-primary btn-sm" onclick="toggleDark()">🌙 / ☀️</button>
@@ -175,7 +175,7 @@ const supabaseClient = supabase.createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmeXFxdW94cWJudWFpamh5c3p4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxNTI5NzgsImV4cCI6MjA4MzcyODk3OH0.Sa-dNSosI7Ol_w-_HZA3B6welLSLZHwKX9hMt9fZCQM"
 );
 
-/* RENDER TABEL */
+/* RENDER */
 function render(tbody,data){
   if(!data||!data.length){
     tbody.innerHTML=`<tr><td colspan="6" class="text-center text-muted">Data tidak ditemukan</td></tr>`;
@@ -210,59 +210,52 @@ async function cariBlockKamar(){
   render(hasilBlock,data);
 }
 
-/* SCREENSHOT HANYA TABEL */
+/* SCREENSHOT (FIXED) */
 function screenshotTabel(){
   const activeTab = document.querySelector(".tab-pane.active");
   const screenshotArea = activeTab.querySelector("#screenshot-area");
-  const tableContainer = activeTab.querySelector(".table-container");
   const header = document.getElementById("screenshot-header");
   const watermark = document.getElementById("watermark");
   const timeEl = document.getElementById("screenshot-time");
 
-  // waktu
   const now = new Date();
   const pad = n => n.toString().padStart(2,"0");
   const date = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
   const time = `${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
-  timeEl.innerText=`Tanggal: ${date} | Jam: ${time.replaceAll("- ",":")}`;
+  timeEl.innerText = `Tanggal: ${date} | Jam: ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
 
-  const oldMax = tableContainer.style.maxHeight;
-  const oldOver = tableContainer.style.overflow;
-
-  // buka scroll
-  tableContainer.style.maxHeight = "none";
-  tableContainer.style.overflow = "visible";
-  header.style.display="block";
-  watermark.style.display="block";
+  const headerClone = header.cloneNode(true);
+  headerClone.style.display="block";
+  const areaClone = screenshotArea.cloneNode(true);
 
   const wrapper = document.createElement("div");
+  wrapper.style.position="fixed";
+  wrapper.style.left="-9999px";
   wrapper.style.background="#fff";
   wrapper.style.padding="16px";
   wrapper.style.width="1080px";
-  wrapper.style.margin="0 auto";
 
-  screenshotArea.before(wrapper);
-  wrapper.appendChild(header);
-  wrapper.appendChild(screenshotArea);
+  watermark.style.display="block";
+
+  wrapper.appendChild(headerClone);
+  wrapper.appendChild(areaClone);
+  document.body.appendChild(wrapper);
+
+  const tc = wrapper.querySelector(".table-container");
+  tc.style.maxHeight="none";
+  tc.style.overflow="visible";
 
   setTimeout(()=>{
-    html2canvas(wrapper,{scale:1.2, backgroundColor:"#fff", useCORS:true})
+    html2canvas(wrapper,{scale:1.2,backgroundColor:"#fff",useCORS:true})
     .then(canvas=>{
       const a=document.createElement("a");
       a.download=`screenshot_${date}_${time}.png`;
       a.href=canvas.toDataURL("image/png");
       a.click();
-
-      // kembalikan
-      activeTab.prepend(screenshotArea);
-      document.querySelector(".card").prepend(header);
-      header.style.display="none";
       watermark.style.display="none";
-      tableContainer.style.maxHeight=oldMax;
-      tableContainer.style.overflow=oldOver;
       wrapper.remove();
     });
-  },300);
+  },200);
 }
 </script>
 
