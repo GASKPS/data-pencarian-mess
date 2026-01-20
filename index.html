@@ -1,63 +1,16 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <title>Test Supabase</title>
-  <!-- Supabase JS -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      background: #f4f4f4;
-    }
-    h2 {
-      text-align: center;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-      background: #fff;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: left;
-    }
-    th {
-      background: #007bff;
-      color: #fff;
-    }
-  </style>
-</head>
-<body>
-
-<h2>Test Koneksi Supabase</h2>
-
-<table id="tabel-data">
-  <thead>
-    <tr>
-      <th>NIK</th>
-      <th>Nama</th>
-      <th>Department</th>
-      <th>Jabatan</th>
-      <th>Block</th>
-      <th>No Kamar</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
-
 <script>
-  // Supabase credentials
   const SUPABASE_URL = "https://afyqquoxqbnuaijhyszx.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmeXFxdW94cWJudWFpamh5c3p4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxNTI5NzgsImV4cCI6MjA4MzcyODk3OH0.Sa-dNSosI7Ol_w-_HZA3B6welLSLZHwKX9hMt9fZCQM";
+  const SUPABASE_ANON_KEY = "PASTE_KEY_KAMU";
 
-  const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const supabaseClient = supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+  );
 
   async function tampilkanData() {
-    const { data, error } = await supabase.from("karyawan").select("*");
+    const { data, error } = await supabaseClient
+      .from("karyawan")
+      .select("*");
 
     const tbody = document.querySelector("#tabel-data tbody");
     tbody.innerHTML = "";
@@ -87,9 +40,5 @@
     });
   }
 
-  // Panggil fungsi saat halaman load
   window.onload = tampilkanData;
 </script>
-
-</body>
-</html>
